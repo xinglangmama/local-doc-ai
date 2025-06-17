@@ -4,7 +4,7 @@
 
 基于 LangChain 和 Streamlit 构建的智能文档问答系统，支持 PDF 和 Word 文档的上传、处理和智能问答。
 
-
+![项目截图](image/loc_ai.png)
 
 ## 项目结构
 
