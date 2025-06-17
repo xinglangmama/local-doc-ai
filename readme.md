@@ -1,18 +1,21 @@
 # 智能文档问答助手
 
-基于 LangChain 和 Streamlit 构建的智能文档问答系统，支持 PDF 和 Word 文档的上传、处理和智能问答。
+**项目掘金文章**: <mcurl name="本地文档AI助手：基于LangChain和Qwen2.5的智能问答系统" url="https://juejin.cn/post/7516571684255399936"></mcurl> <mcreference link="https://juejin.cn/post/7516571684255399936" index="0">0</mcreference>
+
+基于 LangChain 和 Streamlit 构建的智能文档问答系统，支持 PDF 和 Word 文档的上传、处理和智能问答。 <mcreference link="https://juejin.cn/post/7516571684255399936" index="0">0</mcreference>
 
 ## 项目结构
 
 ```
 local-doc-ai/
 ├── main.py                    # 主应用入口，包含界面逻辑
+├── config.py                  # 应用配置管理模块
+├── config.yaml                # 应用配置文件 (用户可修改)
 ├── styles.py                  # 样式配置模块
 ├── document_processor.py      # 文档处理模块
 ├── conversation_handler.py    # 对话处理模块
 ├── local_embeddings.py        # 本地嵌入模型包装器
 ├── qwen_llm.py               # Qwen 大语言模型实现
-├── chatbot_backup.py         # 原始单文件版本备份
 ├── requirements.txt          # 项目依赖配置
 ├── .gitignore               # Git 忽略文件配置
 ├── readme.md                # 项目说明文档
@@ -60,6 +63,10 @@ local-doc-ai/
 - CUDA 加速和内存管理
 - LangChain 兼容接口
 
+### 7. config.py - 配置管理模块
+- 定义和管理应用的所有配置项
+- 支持从 `config.yaml` 文件加载配置
+- 提供默认配置值
 
 ## 功能特性
 
@@ -82,6 +89,7 @@ local-doc-ai/
 - **深度学习**: PyTorch + Transformers
 - **模型管理**: ModelScope + sentence-transformers
 - **数据处理**: NumPy, Pydantic
+- **配置文件**: PyYAML
 
 ## 安装和使用
 
@@ -119,13 +127,15 @@ conda activate local-doc-ai
 pip install -r requirements.txt
 ```
 
-### 4. 运行应用
+### 4. (可选) 配置应用
+   在首次运行前，您可以根据需要修改项目根目录下的 `config.yaml` 文件。该文件允许您自定义模型路径、设备选择、向量数据库设置等。
+
+### 5. 运行应用
 ```bash
 streamlit run main.py
-
 ```
 
-### 5. 使用步骤
+### 6. 使用步骤
 1. 在侧边栏上传 PDF 或 Word 文档
 2. 点击"处理新文档"按钮创建向量数据库
 3. 在对话区域输入问题开始智能问答
@@ -180,6 +190,8 @@ pip freeze > requirements.txt
 - `conversation_handler.py`: 对话逻辑和 LLM 交互
 - `local_embeddings.py`: 本地嵌入模型管理
 - `qwen_llm.py`: Qwen 模型实现
+- `config.py`: 应用配置定义
+- `config.yaml`: 用户自定义配置
 
 ### 添加新功能
 1. 在对应模块中添加新函数
@@ -197,6 +209,70 @@ pip freeze > requirements.txt
 - 测试新格式的兼容性
 
 ## 配置说明
+
+项目使用 `config.yaml` 文件进行详细配置，允许用户根据自己的环境和需求调整应用行为。`config.py` 模块负责加载此配置文件，并提供默认值。
+
+### 主要配置项 (`config.yaml`)
+
+以下是 `config.yaml` 中一些关键的配置选项及其说明：
+
+```yaml
+# 设备选择: 'auto', 'cuda', 'cpu'
+device: auto
+
+# Qwen 大语言模型配置
+qwen_model:
+  model_name_or_path: Qwen/Qwen2-1.5B-Instruct  # ModelScope 模型名称或本地路径
+  # local_model_path: /path/to/your/local/qwen/model # 如果使用本地模型，请取消注释并指定路径
+  # revision: master # 模型版本，通常不需要修改
+  # precision: auto # 模型精度: 'auto', 'fp16', 'bf16', 'int4', 'int8'
+  # cpu_only: false # 是否强制使用 CPU
+
+# 嵌入模型配置
+embedding_model:
+  model_name_or_path: ipex-llm/gte-qwen2-1.5b-instruct-embed # ModelScope 模型名称或本地路径
+  # local_model_path: /path/to/your/local/embedding/model # 如果使用本地模型，请取消注释并指定路径
+  # revision: master # 模型版本
+  # precision: auto # 模型精度
+  # cpu_only: false # 是否强制使用 CPU
+  batch_size: 32      # 嵌入处理的批量大小
+  normalize_embeddings: true # 是否归一化嵌入向量
+
+# 向量数据库配置
+vector_store:
+  db_path: ./vector_store_db # 向量数据库存储路径
+  index_name: faiss_index    # FAISS 索引名称
+
+# 聊天历史配置
+chat_history:
+  max_length: 5 # 保留的最大对话轮数
+
+# 文档处理配置
+document_processing:
+  chunk_size: 500    # 文本分割的块大小
+  chunk_overlap: 50  # 文本分割的重叠大小
+  allowed_extensions: ['.pdf', '.docx', '.txt'] # 允许上传的文件扩展名
+
+# 应用界面配置
+ui:
+  title: "智能文档问答助手 v2.0" # 应用标题
+  sidebar_width: 350 # 侧边栏宽度
+
+# 日志配置
+logging:
+  level: INFO # 日志级别: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+```
+
+### 如何修改配置
+
+1.  打开项目根目录下的 `config.yaml` 文件。
+2.  根据您的需求修改相应的配置值。
+3.  保存文件并重新启动应用 (`streamlit run main.py`) 以使更改生效。
+
+**注意**: 
+-   如果 `config.yaml` 文件不存在或某些配置项缺失，系统将使用 `config.py` 中定义的默认值。
+-   对于模型路径，您可以直接使用 ModelScope 上的模型名称 (如 `Qwen/Qwen2-1.5B-Instruct`)，系统会自动尝试下载。或者，如果您已将模型下载到本地，可以取消注释 `local_model_path` 并指定其绝对路径。
 
 ### 本地模型配置
 
