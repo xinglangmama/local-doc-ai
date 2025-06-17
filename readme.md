@@ -1,8 +1,10 @@
 # 智能文档问答助手
 
-**项目掘金文章**: <mcurl name="本地文档AI助手：基于LangChain和Qwen2.5的智能问答系统" url="https://juejin.cn/post/7516571684255399936"></mcurl> <mcreference link="https://juejin.cn/post/7516571684255399936" index="0">0</mcreference>
+**项目掘金链接**: [本地文档AI助手：基于LangChain和Qwen2.5的智能问答系统](https://juejin.cn/post/7516571684255399936)
 
-基于 LangChain 和 Streamlit 构建的智能文档问答系统，支持 PDF 和 Word 文档的上传、处理和智能问答。 <mcreference link="https://juejin.cn/post/7516571684255399936" index="0">0</mcreference>
+基于 LangChain 和 Streamlit 构建的智能文档问答系统，支持 PDF 和 Word 文档的上传、处理和智能问答。
+
+
 
 ## 项目结构
 
