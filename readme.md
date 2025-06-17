@@ -168,24 +168,8 @@ streamlit run main.py
 - **智能问答**: 基于文档内容的精准回答
 - **易于部署**: 一键安装，快速启动
 
-## 开发说明
+### 代码结构
 
-### 开发环境设置
-
-**1. 虚拟环境管理**
-```bash
-# 开发时激活虚拟环境
-source local-doc-ai-env/bin/activate  # macOS/Linux
-local-doc-ai-env\Scripts\activate     # Windows
-
-# 退出虚拟环境
-deactivate
-
-# 导出依赖（开发时更新）
-pip freeze > requirements.txt
-```
-
-**2. 代码结构**
 - `main.py`: 主应用入口和 Streamlit 界面
 - `styles.py`: CSS 样式和界面美化
 - `document_processor.py`: 文档处理和向量化
