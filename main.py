@@ -6,6 +6,7 @@ import streamlit as st
 import os
 import shutil
 from styles import apply_styles
+from config import config
 from document_processor import (
     process_uploaded_files, 
     load_vectorstore, 
@@ -26,11 +27,12 @@ def setup_page_config():
     """
     设置Streamlit页面的基本配置
     """
+    app_config = config.get_config("app")
     st.set_page_config(
-        page_title="🤖 智能文档问答助手",  # 浏览器标签页标题
-        page_icon="🤖",                    # 页面图标
-        layout="wide",                    # 页面布局模式
-        initial_sidebar_state="expanded"   # 侧边栏默认展开
+        page_title=app_config.get("title", "🤖 智能文档问答助手"),
+        page_icon=app_config.get("page_icon", "🤖"),
+        layout=app_config.get("layout", "wide"),
+        initial_sidebar_state="expanded"
     )
 
 
@@ -38,14 +40,16 @@ def display_main_title():
     """
     显示应用主标题
     """
-    st.markdown("""
+    app_config = config.get_config("app")
+    title = app_config.get("title", "🤖 智能文档问答助手")
+    st.markdown(f"""
     <div style="text-align: center; padding: 2rem 0;">
         <h1 style="
             color: #000000;
             font-size: 3rem;
             font-weight: 800;
             margin-bottom: 0.5rem;
-        ">🤖 智能文档问答助手</h1>
+        ">{title}</h1>
         <p style="
             color: #000000;
             font-size: 1.2rem;
@@ -85,6 +89,9 @@ def create_sidebar():
         
         # 对话管理
         handle_conversation_management()
+        
+        # 设备配置
+        handle_device_configuration()
         
         # 使用说明
         display_usage_instructions()
@@ -255,6 +262,60 @@ def handle_conversation_management():
     if st.button("🔄 重置模型", use_container_width=True, 
                 help="清理模型缓存，释放GPU内存，解决内存不足问题"):
         reset_model()
+    
+    st.markdown("---")
+
+
+def handle_device_configuration():
+    """
+    处理设备配置功能
+    """
+    st.markdown("### ⚙️ 设备配置")
+    
+    # 显示当前设备信息
+    device_info = config.get_device_info()
+    
+    # 设备状态显示
+    if device_info["current_device"] == "cuda":
+        st.success(f"🚀 当前使用: GPU ({device_info.get('cuda_device_name', 'Unknown')})")
+        if "cuda_memory_total" in device_info:
+            st.info(f"💾 显存: {device_info['cuda_memory_total']}")
+    else:
+        st.info("💻 当前使用: CPU")
+    
+    # 设备模式选择
+    current_mode = config.device_mode
+    device_options = {
+        "auto": "🔄 自动检测 (推荐)",
+        "cuda": "🚀 强制使用GPU",
+        "cpu": "💻 强制使用CPU"
+    }
+    
+    selected_mode = st.selectbox(
+        "选择计算设备:",
+        options=list(device_options.keys()),
+        format_func=lambda x: device_options[x],
+        index=list(device_options.keys()).index(current_mode),
+        help="自动模式会优先使用GPU（如果可用），否则使用CPU"
+    )
+    
+    # 如果设备模式发生变化
+    if selected_mode != current_mode:
+        if st.button("🔧 应用设备设置", use_container_width=True):
+            config.set_device_mode(selected_mode)
+            st.success(f"✅ 设备模式已更新为: {device_options[selected_mode]}")
+            st.info("💡 重启应用或重置模型以使新设置生效")
+            st.rerun()
+    
+    # CUDA可用性检查
+    if not device_info["cuda_available"]:
+        st.warning("⚠️ 未检测到CUDA支持，仅可使用CPU模式")
+        st.markdown("""
+        **启用GPU加速的步骤:**
+        1. 安装NVIDIA驱动
+        2. 安装CUDA工具包
+        3. 重新安装PyTorch GPU版本
+        """)
     
     st.markdown("---")
 

@@ -1,0 +1,59 @@
+# 应用程序配置文件
+
+# 设备配置
+device:
+  mode: "cpu"  # 可选值: "auto", "cuda", "cpu"
+  # auto: 自动检测，优先使用GPU
+  # cuda: 强制使用GPU
+  # cpu: 强制使用CPU
+
+# 模型配置
+model:
+  # Qwen模型配置
+  qwen:
+    name: "qwen/Qwen2.5-1.5B-Instruct"
+    max_length: 8192
+    temperature: 0.7
+    
+  # 嵌入模型配置
+  embedding:
+    name: "iic/gte_Qwen2-1.5B-instruct"   
+    cache_folder: "./models"
+    trust_remote_code: true
+
+# 向量数据库配置
+vector_db:
+  type: "faiss"  # 向量数据库类型
+  index_type: "IndexFlatIP"  # FAISS索引类型
+  dimension: 1024  # 向量维度
+  
+# 聊天配置
+chat:
+  max_history: 10  # 最大对话历史数量
+  context_window: 4000  # 上下文窗口大小
+  
+# 文档处理配置
+document:
+  chunk_size: 500  # 文档分块大小
+  chunk_overlap: 50  # 分块重叠大小
+  supported_formats:
+    - ".txt"
+    - ".pdf"
+    - ".docx"
+    - ".md"
+    
+# 应用配置
+app:
+  title: "本地文档AI助手"
+  page_icon: "🤖"
+  layout: "wide"
+  
+# 日志配置
+logging:
+  level: "INFO"  # 日志级别: DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+# 缓存配置
+cache:
+  model_cache_size: 2  # 模型缓存数量
+  clear_on_exit: false  # 退出时是否清理缓存

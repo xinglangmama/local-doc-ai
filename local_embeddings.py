@@ -13,6 +13,7 @@ import pickle
 from typing import List, Optional, Union
 from sentence_transformers import SentenceTransformer
 from langchain_core.embeddings import Embeddings
+from config import config
 
 # ModelScope支持
 try:
@@ -55,7 +56,7 @@ class LocalEmbeddings(Embeddings):
     """
     
     def __init__(self, 
-                 model_name: str = 'iic/gte_Qwen2-1.5B-instruct',
+                 model_name: str = None,
                  device: Optional[str] = None,
                  batch_size: int = 32,
                  normalize_embeddings: bool = True,
@@ -64,19 +65,22 @@ class LocalEmbeddings(Embeddings):
         初始化本地嵌入模型
         
         Args:
-            model_name: 模型名称或路径
+            model_name: 模型名称或路径，None时使用配置文件中的默认值
             device: 计算设备 ('cuda:0', 'cuda:1', 'cpu' 等)，None 为自动检测
             batch_size: 批处理大小，用于大量文本处理
             normalize_embeddings: 是否标准化嵌入向量
             show_progress_bar: 是否显示进度条
         """
-        self.model_name = model_name
+        self.model_name = model_name or config.embedding_model_name
         self.batch_size = batch_size
         self.normalize_embeddings = normalize_embeddings
         self.show_progress_bar = show_progress_bar
         
-        # 设备检测和设置
-        self.device = self._get_optimal_device(device)
+        # 设备检测和设置（使用配置系统）
+        if device is None:
+            self.device = config.device
+        else:
+            self.device = device
         logger.info(f"使用设备: {self.device}")
         
         # 初始化模型

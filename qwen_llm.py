@@ -14,6 +14,7 @@ from pydantic import Field
 import logging
 import os
 import shutil
+from config import config
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -33,9 +34,9 @@ class QwenLLM(BaseLLM):
     使用模块级别的模型缓存避免重复初始化
     """
     
-    model_name: str = Field(default="qwen/Qwen2.5-1.5B-Instruct", description="模型名称")
-    max_length: int = Field(default=2048, description="最大生成长度")
-    temperature: float = Field(default=0.7, description="生成温度")
+    model_name: str = Field(default_factory=lambda: config.qwen_model_name, description="模型名称")
+    max_length: int = Field(default_factory=lambda: config.qwen_max_length, description="最大生成长度")
+    temperature: float = Field(default_factory=lambda: config.qwen_temperature, description="生成温度")
     device: Any = Field(default=None, description="计算设备")
     
     def __init__(self, **kwargs):
@@ -47,8 +48,8 @@ class QwenLLM(BaseLLM):
         # 正确调用父类初始化
         super().__init__(**kwargs)
         
-        # 设置设备
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # 设置设备（使用配置系统）
+        self.device = torch.device(config.device)
         
         # 如果模型还未初始化，则初始化缓存模型
         if not _MODEL_CACHE['initialized']:
